@@ -8,8 +8,10 @@ dynamic = ["version"]
 description = "create and convert 3D/color LUTs"
 readme = "README.rst"
 license = "GPL-3.0"
+requires-python = ">=3.9"
 authors = [
     { name = "Troy Sankey", email = "sankeytms@gmail.com" },
+    { name = "Aarni Koskela", email = "akx@iki.fi" },
 ]
 keywords = [
     "3d",
@@ -19,20 +21,19 @@ keywords = [
     "hald",
     "lut",
 ]
-classifiers = [
-    "Operating System :: POSIX",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.5",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
-]
+classifiers = []
 dependencies = [
     "click>=6.7,<8.0",
     "pypng>=0.20220715.0",
 ]
 
+[project.optional-dependencies]
+fast = [
+    "numpy>=1.21",
+]
+
 [project.scripts]
-cluttool = "cluttool.cluttool:cli"
+cluttool = "cluttool.__main__:cli"
 
 [tool.hatch.version]
 path = "cluttool/__init__.py"
@@ -40,12 +41,32 @@ path = "cluttool/__init__.py"
 [tool.hatch.build.targets.sdist]
 include = [
     "/cluttool",
+    "/tests",
+    "/README.rst",
+    "/COPYING",
+]
+artifacts = [
+    "tests/goldengate.png",
 ]
 
 [dependency-groups]
 dev = [
+    "pytest>=9.1.0",
+    "pytest-cov>=7.1.0",
     "ruff>=0.15.17",
 ]
 
 [tool.ruff.format]
 quote-style = "preserve"
+
+[tool.ruff.lint]
+extend-select = ["I", "UP"]
+
+
+[tool.coverage.report]
+exclude_also = [
+    'raise ValidationError',
+    'raise NotImplementedError',
+    'if __name__ == .__main__.:',
+    'if TYPE_CHECKING:',
+]

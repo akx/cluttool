@@ -40,7 +40,7 @@ Supported color LUT formats:
 +------------------+--------------------+------------+
 | 3D LUT (.3dl)    | Cube LUT (.cube)   | No         |
 +------------------+--------------------+------------+
-| Cube LUT (.cube) | Hald CLUT (.png)   | No         |
+| Cube LUT (.cube) | Hald CLUT (.png)   | Yes        |
 +------------------+--------------------+------------+
 | Cube LUT (.cube) | 3D LUT (.3dl)      | No         |
 +------------------+--------------------+------------+
@@ -49,6 +49,19 @@ I built the framework to support all possible conversions, but I personally only
 needed to convert from Hald CLUT (.png) to cube and 3dl, so that is all I
 implemented.  The places in the code marked ``raise NotImplementedError()``
 indicate where there is missing logic for the unimplemented conversions.
+
+Faster resampling (optional)
+----------------------------
+
+Writing a Hald CLUT resamples the LUT, and ``--max-error`` searches several
+levels, each of which is measured against the source.  This interpolation is
+done in pure Python by default.  If numpy is installed it is used automatically
+to vectorize the work (tens of times faster); install it with the ``fast``
+extra::
+
+    pip install cluttool[fast]
+
+The result is identical either way; numpy only changes the speed.
 
 Similar Tools
 -------------
