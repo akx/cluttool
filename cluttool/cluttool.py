@@ -24,9 +24,11 @@ def fatal_error(message):
     click.echo(message)
     sys.exit(1)
 
+
 def is_perfect_six_root(n):
-    c = int(n**(1/6.))
-    return (c**6 == n) or ((c+1)**6 == n)
+    c = int(n ** (1 / 6.0))
+    return (c**6 == n) or ((c + 1) ** 6 == n)
+
 
 def write_png(path, data, width, height, bit_depth):
     """
@@ -44,20 +46,21 @@ def uniform_intervals(end, samples, floating_point=False):
     """
     Make `samples` uniformly distributed numbers from 0 to `end`.
     """
-    dist = end/float(samples-1)
-    values = [dist*i for i in range(samples)]
+    dist = end / float(samples - 1)
+    values = [dist * i for i in range(samples)]
     if not floating_point:
         values = [int(round(v)) for v in values]
         for idx in range(1, samples):
-            actual_dist = values[idx] - values[idx-1]
-            error_frac = abs(float(actual_dist)/dist - 1.0)
+            actual_dist = values[idx] - values[idx - 1]
+            error_frac = abs(float(actual_dist) / dist - 1.0)
             if error_frac > 0.07:
-                raise ValueError('input parameters to uniform_intervals would yield a non-uniform distribution.')
+                raise ValueError(
+                    'input parameters to uniform_intervals would yield a non-uniform distribution.'
+                )
     return values
 
 
 class Value3D(object):
-
     def __init__(self, components):
         self.components = tuple(components)
 
@@ -103,13 +106,15 @@ def index_3d(data, size, r_idx, g_idx, b_idx):
     idx *= 3
     # click.echo('index_3d(): size, r_idx, g_idx, b_idx = {},{},{},{}'.format(size, r_idx, g_idx, b_idx))
     # click.echo('index_3d(): idx = {}'.format(idx))
-    return data[idx:idx+3]
+    return data[idx : idx + 3]
 
 
 class ColorLUT(object):
-    """
-    """
-    def __init__(self, data, sample_count=None, input_domain=None, red_increments_fastest=True):
+    """ """
+
+    def __init__(
+        self, data, sample_count=None, input_domain=None, red_increments_fastest=True
+    ):
         if not isinstance(data, array) or not isinstance(data[0], numbers.Number):
             raise ValueError('data parameter should be a flat list of numbers.')
         if not isinstance(sample_count, int):
@@ -118,12 +123,18 @@ class ColorLUT(object):
             raise ValueError('input_domain parameter should be a number.')
         if isinstance(input_domain, numbers.Integral):
             if data.typecode not in 'bBhHiIlL':
-                raise ValueError('input_domain parameter should have the same type as the data.')
+                raise ValueError(
+                    'input_domain parameter should have the same type as the data.'
+                )
         else:
             if data.typecode not in 'fd':
-                raise ValueError('input_domain parameter should have the same type as the data.')
+                raise ValueError(
+                    'input_domain parameter should have the same type as the data.'
+                )
         if not len(data) == 3 * (sample_count**3):
-            raise ValueError('The sample intervals do not appear to match the matrix dimensions.')
+            raise ValueError(
+                'The sample intervals do not appear to match the matrix dimensions.'
+            )
         self.data = data
         self.sample_count = sample_count
         self.input_domain = input_domain
@@ -132,7 +143,7 @@ class ColorLUT(object):
             self.datatype = numbers.Real
         elif data.typecode in 'bBhHiIlL':
             self.datatype = numbers.Integral
-        self.sample_distance = self.input_domain / float(self.sample_count-1)
+        self.sample_distance = self.input_domain / float(self.sample_count - 1)
 
     def get_color_value_from_index(self, r_idx, g_idx, b_idx):
         """
@@ -140,7 +151,9 @@ class ColorLUT(object):
         """
         if not self.red_increments_fastest:
             r_idx, b_idx = b_idx, r_idx
-        color_value = Value3D(index_3d(self.data, self.sample_count, r_idx, g_idx, b_idx))
+        color_value = Value3D(
+            index_3d(self.data, self.sample_count, r_idx, g_idx, b_idx)
+        )
         # click.echo('get_color_value_from_index(): r_idx,g_idx,b_idx = {},{},{}'.format(r_idx,g_idx,b_idx))
         # click.echo('get_color_value_from_index(): color_value = {}'.format(str(color_value)))
         return color_value
@@ -167,22 +180,31 @@ class ColorLUT(object):
             r_0_idx = self.sample_count - 2
             r_d = 1
         else:
-            r_0_idx = math.trunc(r_input/self.sample_distance)
-            r_d = float(Decimal(r_input) % Decimal(self.sample_distance)) / self.sample_distance
+            r_0_idx = math.trunc(r_input / self.sample_distance)
+            r_d = (
+                float(Decimal(r_input) % Decimal(self.sample_distance))
+                / self.sample_distance
+            )
 
         if g_input == self.input_domain:
             g_0_idx = self.sample_count - 2
             g_d = 1
         else:
-            g_0_idx = math.trunc(g_input/self.sample_distance)
-            g_d = float(Decimal(g_input) % Decimal(self.sample_distance)) / self.sample_distance
+            g_0_idx = math.trunc(g_input / self.sample_distance)
+            g_d = (
+                float(Decimal(g_input) % Decimal(self.sample_distance))
+                / self.sample_distance
+            )
 
         if b_input == self.input_domain:
             b_0_idx = self.sample_count - 2
             b_d = 1
         else:
-            b_0_idx = math.trunc(b_input/self.sample_distance)
-            b_d = float(Decimal(b_input) % Decimal(self.sample_distance)) / self.sample_distance
+            b_0_idx = math.trunc(b_input / self.sample_distance)
+            b_d = (
+                float(Decimal(b_input) % Decimal(self.sample_distance))
+                / self.sample_distance
+            )
 
         r_1_idx = r_0_idx + 1
         g_1_idx = g_0_idx + 1
@@ -197,24 +219,24 @@ class ColorLUT(object):
         c_110 = self.get_color_value_from_index(r_1_idx, g_1_idx, b_0_idx)
         c_111 = self.get_color_value_from_index(r_1_idx, g_1_idx, b_1_idx)
 
-        c_00 = c_000*(1.0-r_d) + c_100*r_d
-        c_01 = c_001*(1.0-r_d) + c_101*r_d
-        c_10 = c_010*(1.0-r_d) + c_110*r_d
-        c_11 = c_011*(1.0-r_d) + c_111*r_d
+        c_00 = c_000 * (1.0 - r_d) + c_100 * r_d
+        c_01 = c_001 * (1.0 - r_d) + c_101 * r_d
+        c_10 = c_010 * (1.0 - r_d) + c_110 * r_d
+        c_11 = c_011 * (1.0 - r_d) + c_111 * r_d
 
-        c_0 = c_00*(1.0-g_d) + c_10*g_d
-        c_1 = c_01*(1.0-g_d) + c_11*g_d
+        c_0 = c_00 * (1.0 - g_d) + c_10 * g_d
+        c_1 = c_01 * (1.0 - g_d) + c_11 * g_d
 
-        c = c_0*(1.0-b_d) + c_1*b_d
+        c = c_0 * (1.0 - b_d) + c_1 * b_d
 
         return c
 
     def get_values_translated(
-            self,
-            increment_red_fastest=True,
-            output_sample_count=None,
-            output_domain=None,
-        ):
+        self,
+        increment_red_fastest=True,
+        output_sample_count=None,
+        output_domain=None,
+    ):
         """
         Make an iterable of output color values in sequence.
 
@@ -245,7 +267,7 @@ class ColorLUT(object):
 
         if interpolate_output:
             input_values = (
-                Value3D(idx)*(self.input_domain/float(output_sample_count-1))
+                Value3D(idx) * (self.input_domain / float(output_sample_count - 1))
                 for idx in indexes
             )
             output_values = (
@@ -253,15 +275,11 @@ class ColorLUT(object):
                 for input_value in input_values
             )
         else:
-            output_values = (
-                self.get_color_value_from_index(*idx)
-                for idx in indexes
-            )
+            output_values = (self.get_color_value_from_index(*idx) for idx in indexes)
 
         if scale_output:
             output_values = (
-                output_value*scaling_factor
-                for output_value in output_values
+                output_value * scaling_factor for output_value in output_values
             )
 
         return output_values
@@ -275,28 +293,40 @@ class ColorLUT(object):
         if 'gamma' in meta:
             raise ValueError('Then given PNG file contains a gamma value. Refusing.')
         if 'transparent' in meta:
-            raise ValueError('Then given PNG file specifies a transparent color. Refusing.')
+            raise ValueError(
+                'Then given PNG file specifies a transparent color. Refusing.'
+            )
         if meta['alpha']:
             raise ValueError('Then given PNG file contains an alpha channel. Refusing.')
         if meta['greyscale']:
+
             def triple_generator(d):
                 for val in d:
                     yield val
                     yield val
                     yield val
+
             data = array(data.typecode, triple_generator(data))
         if meta['bitdepth'] not in (8, 16):
-            raise ValueError('Then given PNG file specifies an unsupported bit depth. Refusing.')
+            raise ValueError(
+                'Then given PNG file specifies an unsupported bit depth. Refusing.'
+            )
         width_is_square_root_of_perfect_six_root = is_perfect_six_root(width**2)
         if width != height or not width_is_square_root_of_perfect_six_root:
-            raise ValueError('The given PNG file does not have appropriate Hald CLUT dimensions. Refusing.')
-        sample_count = int(round((width**2)**(1./3)))
-        input_domain = 2**meta['bitdepth']-1
+            raise ValueError(
+                'The given PNG file does not have appropriate Hald CLUT dimensions. Refusing.'
+            )
+        sample_count = int(round((width**2) ** (1.0 / 3)))
+        input_domain = 2 ** meta['bitdepth'] - 1
         click.echo('from_haldclut(): PNG dimensions = {}x{}'.format(width, height))
         click.echo('from_haldclut(): PNG bit depth = {}'.format(meta['bitdepth']))
         click.echo('from_haldclut(): PNG array typecode = {}'.format(data.typecode))
         click.echo('from_haldclut(): Inferred input domain = {}'.format(input_domain))
-        click.echo('from_haldclut(): Inferred 3D matrix dimensions = {0}x{0}x{0}'.format(sample_count))
+        click.echo(
+            'from_haldclut(): Inferred 3D matrix dimensions = {0}x{0}x{0}'.format(
+                sample_count
+            )
+        )
         return cls(data, sample_count=sample_count, input_domain=input_domain)
 
     @classmethod

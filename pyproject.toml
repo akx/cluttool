@@ -40,3 +40,11 @@ path = "cluttool/__init__.py"
 include = [
     "/cluttool",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.17",
+]
+
+[tool.ruff.format]
+quote-style = "preserve"
