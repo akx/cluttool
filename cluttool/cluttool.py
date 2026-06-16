@@ -32,14 +32,17 @@ def is_perfect_six_root(n):
 
 def write_png(path, data, width, height, bit_depth):
     """
-    Create an "identity" PNG file.
+    Write a flat array of RGB samples to a PNG file.
     """
-    writer = png.writer(
+    writer = png.Writer(
         width=width,
         height=height,
         bitdepth=bit_depth,
+        greyscale=False,
+        alpha=False,
     )
-    writer.write_array(path, data)
+    with open(path, 'wb') as destfile:
+        writer.write_array(destfile, data)
 
 
 def uniform_intervals(end, samples, floating_point=False):
